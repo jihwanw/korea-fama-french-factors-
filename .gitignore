@@ -1,16 +1,8 @@
-# Python
 __pycache__/
 *.py[cod]
 .Python
 venv/
 .venv/
-
-# Credentials
 config.json
-
-# IDE
-.vscode/
-.idea/
-
-# OS
 .DS_Store
+._*

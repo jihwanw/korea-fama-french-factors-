@@ -16,8 +16,7 @@
 ### 파일 구조
 ```
 data/
-├── korea_factors_monthly.csv    # 월별 3 Factor 데이터 (61개월)
-└── korea_rf_monthly.csv          # 월별 무위험 수익률 원본 데이터
+└── korea_factors_monthly.csv    # 월별 3 Factor 데이터 (61개월, RF 포함)
 ```
 
 ### 데이터 형식

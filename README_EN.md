@@ -16,7 +16,7 @@ Monthly Fama-French 3 Factor data for Korean stock market (Oct 2020 - Oct 2025)
 ### File Structure
 ```
 data/
-└── korea_factors_monthly.csv    # Monthly 3 Factor data (61 months)
+└── korea_factors_monthly.csv    # Monthly 3 Factor data (61 months, includes RF)
 ```
 
 ### Data Format
