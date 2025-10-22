@@ -26,7 +26,8 @@ korea-fama-french-factors/
 ├── korea_factor_calculator.py         # Factor calculation logic
 ├── korea_factor_updater.py            # Automatic factor updater
 ├── korea_rf_fetcher.py                # Risk-free rate fetcher
-└── korea_ticker_utils.py              # WRDS data query utilities
+├── korea_ticker_utils.py              # WRDS data query utilities
+└── fama_macbeth_test.py               # Fama-MacBeth regression test
 ```
 
 ### Python Scripts
@@ -37,6 +38,7 @@ korea-fama-french-factors/
 | **korea_factor_updater.py** | Automatic factor updater | Detect missing months and calculate |
 | **korea_rf_fetcher.py** | Risk-free rate fetcher | Fetch data from BOK ECOS API |
 | **korea_ticker_utils.py** | WRDS data utilities | Query stock prices, market cap, book equity |
+| **fama_macbeth_test.py** | Fama-MacBeth regression test | Test factor significance and statistics |
 
 ### Data Format
 ```csv
@@ -184,6 +186,11 @@ python korea_rf_fetcher.py --config config.json
 ### Recalculate Factors
 ```bash
 python korea_factor_updater.py --filepath data/korea_factors_monthly.csv
+```
+
+### Test Factor Significance
+```bash
+python fama_macbeth_test.py
 ```
 
 ---

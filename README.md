@@ -26,7 +26,8 @@ korea-fama-french-factors/
 ├── korea_factor_calculator.py         # Factor 계산 로직
 ├── korea_factor_updater.py            # Factor 자동 업데이트
 ├── korea_rf_fetcher.py                # 무위험 수익률 수집
-└── korea_ticker_utils.py              # WRDS 데이터 조회 유틸리티
+├── korea_ticker_utils.py              # WRDS 데이터 조회 유틸리티
+└── fama_macbeth_test.py               # Fama-MacBeth 회귀 테스트
 ```
 
 ### Python 스크립트 설명
@@ -37,6 +38,7 @@ korea-fama-french-factors/
 | **korea_factor_updater.py** | Factor 데이터 자동 업데이트 | 누락된 월 자동 감지 및 계산 |
 | **korea_rf_fetcher.py** | 무위험 수익률 수집 | 한국은행 ECOS API 연동 |
 | **korea_ticker_utils.py** | WRDS 데이터 조회 | 주가, 시총, 장부가치 조회 함수 |
+| **fama_macbeth_test.py** | Fama-MacBeth 회귀 테스트 | Factor 유의성 검정 및 통계 분석 |
 
 ### 데이터 형식
 ```csv
@@ -193,6 +195,11 @@ python korea_rf_fetcher.py --config config.json --start-date 20201001 --end-date
 ### Factor 재계산
 ```bash
 python korea_factor_updater.py --filepath data/korea_factors_monthly.csv
+```
+
+### Factor 유의성 테스트
+```bash
+python fama_macbeth_test.py
 ```
 
 ---
