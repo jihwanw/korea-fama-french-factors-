@@ -61,6 +61,36 @@ date,MKT,SMB,HML,RF
 
 ## 🔬 방법론
 
+### Fama-MacBeth 2단계 회귀분석 (1973)
+
+Fama-MacBeth 회귀분석은 자산 가격 결정 모델을 검증하고 위험 프리미엄을 추정하는 표준 방법론입니다.
+
+**1단계: 시계열 회귀 (베타 추정)**
+```
+R_i,t - R_f,t = α_i + β_i,MKT(MKT_t) + β_i,SMB(SMB_t) + β_i,HML(HML_t) + ε_i,t
+```
+- 각 자산의 팩터 민감도(베타) 추정
+- 과거 60개월 데이터 사용
+
+**2단계: 횡단면 회귀 (프리미엄 추정)**
+```
+R_i,t = γ_0,t + γ_MKT,t β_i,MKT + γ_SMB,t β_i,SMB + γ_HML,t β_i,HML + η_i,t
+```
+- 매월 모든 자산에 대해 횡단면 회귀 실행
+- 팩터 프리미엄(γ) 추정
+
+**3단계: 시계열 평균 및 검정**
+```
+γ̄_j = (1/T) Σ γ_j,t
+t-stat = γ̄_j / SE(γ̄_j)
+```
+- 평균 팩터 프리미엄 계산
+- 통계적 유의성 검정
+
+**참고문헌**: Fama, E. F., & MacBeth, J. D. (1973). "Risk, Return, and Equilibrium: Empirical Tests." *Journal of Political Economy*, 81(3), 607-636.
+
+---
+
 ### Fama-French 3 Factor Model (1993)
 
 #### 1단계: 포트폴리오 구성 (2x3 Sort)

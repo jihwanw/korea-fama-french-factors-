@@ -1,8 +1,0 @@
-__pycache__/
-*.py[cod]
-.Python
-venv/
-.venv/
-config.json
-.DS_Store
-._*

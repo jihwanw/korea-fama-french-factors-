@@ -1,0 +1,5 @@
+{
+  "ecos_api_key": "YOUR_ECOS_API_KEY_HERE",
+  "wrds_username": "YOUR_WRDS_USERNAME",
+  "wrds_password": "YOUR_WRDS_PASSWORD"
+}
