@@ -252,24 +252,114 @@ ggplot(factors, aes(x=date, y=MKT)) +
 
 ## 📚 참고문헌
 
-1. **Fama, E. F., & French, K. R. (1993)**  
+### 핵심 논문
+
+1. **Fama, E. F., & MacBeth, J. D. (1973)**  
+   "Risk, Return, and Equilibrium: Empirical Tests"  
+   *Journal of Political Economy*, 81(3), 607-636.  
+   DOI: [10.1086/260061](https://doi.org/10.1086/260061)
+
+2. **Fama, E. F., & French, K. R. (1993)**  
    "Common risk factors in the returns on stocks and bonds"  
    *Journal of Financial Economics*, 33(1), 3-56.  
-   DOI: 10.1016/0304-405X(93)90023-5
+   DOI: [10.1016/0304-405X(93)90023-5](https://doi.org/10.1016/0304-405X(93)90023-5)
 
-2. **WRDS Compustat Global**  
+3. **Fama, E. F., & French, K. R. (2015)**  
+   "A five-factor asset pricing model"  
+   *Journal of Financial Economics*, 116(1), 1-22.  
+   DOI: [10.1016/j.jfineco.2014.10.010](https://doi.org/10.1016/j.jfineco.2014.10.010)
+
+### 데이터 출처
+
+4. **WRDS Compustat Global**  
    Wharton Research Data Services  
    https://wrds-www.wharton.upenn.edu/
 
-3. **한국은행 경제통계시스템 (ECOS)**  
+5. **한국은행 경제통계시스템 (ECOS)**  
    Bank of Korea Economic Statistics System  
    https://ecos.bok.or.kr/
 
+### 방법론 참고
+
+6. **Newey, W. K., & West, K. D. (1987)**  
+   "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix"  
+   *Econometrica*, 55(3), 703-708.
+
+7. **Cochrane, J. H. (2005)**  
+   *Asset Pricing* (Revised Edition)  
+   Princeton University Press.
+
+### 추가 자료
+
+- **Kenneth French Data Library**: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
+- **AQR Capital Management Datasets**: https://www.aqr.com/Insights/Datasets
+
 ---
 
-## 📄 라이선스
+## 📄 라이선스 및 면책사항
 
-Academic Research Use Only
+### 라이선스
+
+**MIT License**
+
+Copyright (c) 2025 [Your Name]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### 학술 연구 목적
+
+본 프로젝트는 **학술 연구 및 교육 목적으로만** 사용됩니다.
+
+### 중요 면책사항
+
+⚠️ **투자 조언 아님**
+- 본 연구는 학술 목적으로만 제공되며 투자 조언이 아닙니다
+- 연구 결과를 투자 결정의 유일한 근거로 사용해서는 안 됩니다
+- 투자 결정 전 반드시 전문 금융 자문가와 상담하시기 바랍니다
+
+⚠️ **과거 성과**
+- 과거 성과가 미래 수익을 보장하지 않습니다
+- 역사적 수익률은 미래 성과를 나타내지 않습니다
+- 시장 상황은 변화하며 역사적 패턴이 지속되지 않을 수 있습니다
+
+⚠️ **데이터 한계**
+- 데이터에 오류, 누락 또는 부정확성이 포함될 수 있습니다
+- 결과는 데이터 품질 및 방법론 선택에 민감합니다
+- 생존편향 완화 노력에도 불구하고 역사적 분석에 영향을 미칠 수 있습니다
+
+⚠️ **모델 리스크**
+- 자산 가격 결정 모델은 현실의 단순화입니다
+- 팩터 모델이 모든 위험 요인을 포착하지 못할 수 있습니다
+- 모델 파라미터는 불확실성을 가지고 추정됩니다
+
+⚠️ **보증 없음**
+- 본 소프트웨어는 "있는 그대로" 제공되며 어떠한 보증도 없습니다
+- 저자는 본 소프트웨어 사용으로 인한 손실이나 손해에 대해 책임지지 않습니다
+- 사용자는 본 연구 사용과 관련된 모든 위험을 부담합니다
+
+⚠️ **규제 준수**
+- 사용자는 해당 증권법 준수에 대한 책임이 있습니다
+- 본 연구는 증권 제공 또는 권유를 구성하지 않습니다
+- 귀하의 관할권 내 규제 요구사항에 대해 법률 자문을 구하시기 바랍니다
+
+### 데이터 출처 표시
+
+- **WRDS Compustat Global**: © Wharton Research Data Services
+- **한국은행 ECOS**: © Bank of Korea Economic Statistics System
+- **Fama-French Methodology**: © Eugene F. Fama & Kenneth R. French
+
+### 책임있는 사용
+
+본 소프트웨어를 사용함으로써 귀하는 다음에 동의합니다:
+1. 학술, 교육 또는 연구 목적으로만 사용
+2. 투자 결정의 유일한 근거로 사용하지 않음
+3. 출판물이나 발표에서 본 연구를 적절히 인용
+4. 모든 해당 데이터 라이선스 계약 준수
+5. 위에 설명된 한계와 위험을 인정
 
 ---
 
