@@ -15,9 +15,28 @@ Monthly Fama-French 3 Factor data for Korean stock market (Oct 2020 - Oct 2025)
 
 ### File Structure
 ```
-data/
-└── korea_factors_monthly.csv    # Monthly 3 Factor data (61 months, includes RF)
+korea-fama-french-factors/
+├── README.md                          # Korean documentation
+├── README_EN.md                       # English documentation
+├── data/
+│   └── korea_factors_monthly.csv      # Monthly 3 Factor data (MKT, SMB, HML, RF)
+├── docs/
+│   ├── DATA_COLLECTION_WRDS.md        # WRDS data collection guide
+│   └── DATA_COLLECTION_ECOS.md        # ECOS API usage guide
+├── korea_factor_calculator.py         # Factor calculation logic
+├── korea_factor_updater.py            # Automatic factor updater
+├── korea_rf_fetcher.py                # Risk-free rate fetcher
+└── korea_ticker_utils.py              # WRDS data query utilities
 ```
+
+### Python Scripts
+
+| File | Description | Purpose |
+|------|-------------|----------|
+| **korea_factor_calculator.py** | Fama-French 3 Factor calculator | Portfolio formation and factor calculation |
+| **korea_factor_updater.py** | Automatic factor updater | Detect missing months and calculate |
+| **korea_rf_fetcher.py** | Risk-free rate fetcher | Fetch data from BOK ECOS API |
+| **korea_ticker_utils.py** | WRDS data utilities | Query stock prices, market cap, book equity |
 
 ### Data Format
 ```csv

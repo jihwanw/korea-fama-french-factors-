@@ -15,9 +15,28 @@
 
 ### 파일 구조
 ```
-data/
-└── korea_factors_monthly.csv    # 월별 3 Factor 데이터 (61개월, RF 포함)
+korea-fama-french-factors/
+├── README.md                          # 한국어 문서
+├── README_EN.md                       # 영어 문서
+├── data/
+│   └── korea_factors_monthly.csv      # 월별 3 Factor 데이터 (MKT, SMB, HML, RF)
+├── docs/
+│   ├── DATA_COLLECTION_WRDS.md        # WRDS 데이터 수집 가이드
+│   └── DATA_COLLECTION_ECOS.md        # ECOS API 사용 가이드
+├── korea_factor_calculator.py         # Factor 계산 로직
+├── korea_factor_updater.py            # Factor 자동 업데이트
+├── korea_rf_fetcher.py                # 무위험 수익률 수집
+└── korea_ticker_utils.py              # WRDS 데이터 조회 유틸리티
 ```
+
+### Python 스크립트 설명
+
+| 파일 | 설명 | 용도 |
+|------|------|------|
+| **korea_factor_calculator.py** | Fama-French 3 Factor 계산 | 포트폴리오 구성 및 Factor 계산 로직 |
+| **korea_factor_updater.py** | Factor 데이터 자동 업데이트 | 누락된 월 자동 감지 및 계산 |
+| **korea_rf_fetcher.py** | 무위험 수익률 수집 | 한국은행 ECOS API 연동 |
+| **korea_ticker_utils.py** | WRDS 데이터 조회 | 주가, 시총, 장부가치 조회 함수 |
 
 ### 데이터 형식
 ```csv
