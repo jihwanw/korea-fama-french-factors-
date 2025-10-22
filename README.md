@@ -1,54 +1,59 @@
 # Korea Fama-French Three Factors
 
-한국 주식시장의 Fama-French 3 Factor 월별 데이터 (2020-10 ~ 현재)
+한국 주식시장의 Fama-French 3 Factor 월별 데이터 (2020-10 ~ 2025-10)
 
-[![Data Source](https://img.shields.io/badge/Data-WRDS%20Compustat%20Global-blue)](https://wrds-www.wharton.upenn.edu/)
-[![Python](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
+[![Data](https://img.shields.io/badge/Data-WRDS%20Compustat-blue)](https://wrds-www.wharton.upenn.edu/)
+[![RF](https://img.shields.io/badge/RF-BOK%20ECOS-green)](https://ecos.bok.or.kr/)
+[![Python](https://img.shields.io/badge/Python-3.8+-yellow)](https://www.python.org/)
 
 ---
 
 ## 📊 데이터
 
-### 파일 위치
-- **`data/korea_factors_monthly.csv`** - 월별 3 Factor 데이터
+### 파일 구조
+```
+data/
+├── korea_factors_monthly.csv    # 월별 3 Factor 데이터 (61개월)
+└── korea_rf_monthly.csv          # 월별 무위험 수익률 원본 데이터
+```
 
-### 데이터 구조
+### 데이터 형식
 ```csv
 date,MKT,SMB,HML,RF
-2020-10-31,-1.95,0.25,1.43,0.08
-2020-11-30,15.22,0.59,-0.75,0.08
+2020-10-31,-1.95,0.25,1.43,0.057
+2020-11-30,15.22,0.59,-0.75,0.058
 ...
 ```
 
-### 컬럼 설명
-- **date**: 월말 날짜 (YYYY-MM-DD)
-- **MKT**: Market Premium (%) = 시장수익률 - 무위험수익률
-- **SMB**: Small Minus Big (%) = 소형주 - 대형주 수익률
-- **HML**: High Minus Low (%) = 가치주 - 성장주 수익률
-- **RF**: Risk-Free Rate (%) = 무위험수익률 (월 0.083% = 연 1%)
+### 변수 설명
+| 변수 | 설명 | 단위 |
+|------|------|------|
+| **date** | 월말 날짜 | YYYY-MM-DD |
+| **MKT** | Market Premium = 시장수익률 - RF | % |
+| **SMB** | Small Minus Big = 소형주 - 대형주 | % |
+| **HML** | High Minus Low = 가치주 - 성장주 | % |
+| **RF** | Risk-Free Rate = 국고채 1년 / 12 | % |
 
 ---
 
 ## 🔬 방법론
 
-### Fama-French 3 Factor Model
+### Fama-French 3 Factor Model (1993)
 
-**Stage 1: 포트폴리오 구성 (2x3 Sort)**
+#### 1단계: 포트폴리오 구성 (2x3 Sort)
 
-1. **Size 분류** (시가총액 기준)
-   - Small (S): 중위수 이하
-   - Big (B): 중위수 초과
+**Size 분류** (시가총액 기준)
+- Small (S): 중위수 이하
+- Big (B): 중위수 초과
 
-2. **Value 분류** (Book-to-Market 기준)
-   - Low (L): 상위 30% (가치주)
-   - Medium (M): 중간 40%
-   - High (H): 하위 30% (성장주)
+**Value 분류** (Book-to-Market 기준)
+- Low (L): 상위 30% (가치주)
+- Medium (M): 중간 40%
+- High (H): 하위 30% (성장주)
 
-3. **6개 포트폴리오**
-   - S/L, S/M, S/H (소형주 3개)
-   - B/L, B/M, B/H (대형주 3개)
+**6개 포트폴리오**: S/L, S/M, S/H, B/L, B/M, B/H
 
-**Stage 2: Factor 계산**
+#### 2단계: Factor 계산
 
 ```
 SMB = (S/L + S/M + S/H)/3 - (B/L + B/M + B/H)/3
@@ -58,74 +63,137 @@ MKT = 시장 가치가중 수익률 - RF
 
 ---
 
-## 📥 데이터 출처
+## 📥 데이터 출처 및 수집 방법
 
 ### 1. 주가 및 시가총액
-- **출처**: WRDS Compustat Global Security Daily (`comp.g_secd`)
-- **테이블**: `comp.g_secd`
-- **필드**:
-  - `prccd`: 종가 (Closing Price)
-  - `ajexdi`: 조정계수 (Adjustment Factor)
-  - `cshoc`: 발행주식수 (Shares Outstanding)
-  - `market_cap = prccd / ajexdi * cshoc`
+
+**출처**: WRDS Compustat Global Security Daily
+
+**접근 방법**:
+1. WRDS 계정 필요: https://wrds-www.wharton.upenn.edu/
+2. 기관 구독 필요 (대학/연구기관)
+
+**데이터베이스**: `comp.g_secd`
+
+**SQL 쿼리 예시**:
+```sql
+SELECT gvkey, iid, datadate, conm, prccd, ajexdi, cshoc,
+       (prccd / ajexdi * cshoc) as market_cap
+FROM comp.g_secd
+WHERE fic = 'KOR'
+  AND datadate = '2020-10-31'
+  AND prccd IS NOT NULL
+  AND cshoc IS NOT NULL
+ORDER BY market_cap DESC
+```
+
+**필드 설명**:
+- `prccd`: 종가 (Closing Price)
+- `ajexdi`: 조정계수 (Adjustment Factor for splits/dividends)
+- `cshoc`: 발행주식수 (Shares Outstanding)
+- `market_cap`: 시가총액 = prccd / ajexdi * cshoc
+
+**상세 가이드**: [docs/DATA_COLLECTION_WRDS.md](docs/DATA_COLLECTION_WRDS.md)
+
+---
 
 ### 2. 장부가치 (Book Equity)
-- **출처**: WRDS Compustat Global Fundamentals Annual (`comp.g_funda`)
-- **테이블**: `comp.g_funda`
-- **필드**:
-  - `ceq`: 보통주 자본 (Common Equity)
-  - 가장 최근 연간 데이터 사용
 
-### 3. 무위험수익률 (Risk-Free Rate)
-- **가정**: 연 1% (월 0.083%)
-- **근거**: 한국 국고채 1년물 평균 수익률 근사치
+**출처**: WRDS Compustat Global Fundamentals Annual
 
-### 4. 데이터 필터링
-- **국가**: `fic = 'KOR'` (한국)
-- **제외**: 가격 또는 발행주식수가 NULL인 종목
-- **제외**: 장부가치가 없는 종목
+**데이터베이스**: `comp.g_funda`
+
+**SQL 쿼리 예시**:
+```sql
+SELECT gvkey, datadate, ceq, at
+FROM comp.g_funda
+WHERE fic = 'KOR'
+  AND datadate <= '2020-10-31'
+  AND datadate >= '2018-10-31'
+  AND ceq IS NOT NULL
+  AND ceq > 0
+ORDER BY datadate DESC
+```
+
+**필드 설명**:
+- `ceq`: 보통주 자본 (Common Equity)
+- `at`: 총자산 (Total Assets)
+
+**처리 방법**: 각 종목의 가장 최근 연간 데이터 사용
+
+---
+
+### 3. 무위험 수익률 (Risk-Free Rate)
+
+**출처**: 한국은행 경제통계시스템 (ECOS)
+
+**API 접근 방법**:
+
+1. **API 키 발급**
+   - URL: https://ecos.bok.or.kr/
+   - 회원가입 → 로그인 → "인증키 신청/관리"
+   - 용도: "학술연구" 선택
+   - 즉시 발급
+
+2. **통계표 정보**
+   - 통계표코드: `817Y002`
+   - 통계항목코드: `010190000`
+   - 통계명: 국고채(1년) 수익률
+   - 주기: 일별(D)
+   - 단위: 연율(%)
+
+3. **API 호출 예시**
+```bash
+curl "https://ecos.bok.or.kr/api/StatisticSearch/YOUR_API_KEY/json/kr/1/10000/817Y002/D/20201001/20251031/010190000"
+```
+
+4. **데이터 처리**
+   - 일별 데이터 → 월별 평균 계산
+   - 연율(%) → 월율(%) 변환: `annual_rate / 12`
+
+**Python 스크립트**: `korea_rf_fetcher.py`
+
+**실행 방법**:
+```bash
+python korea_rf_fetcher.py --config config.json
+```
+
+**상세 가이드**: [docs/DATA_COLLECTION_ECOS.md](docs/DATA_COLLECTION_ECOS.md)
 
 ---
 
 ## 🔄 데이터 업데이트
 
-### 자동 업데이트
+### 무위험 수익률 업데이트
 ```bash
-python korea_factor_updater.py
+python korea_rf_fetcher.py --config config.json --start-date 20201001 --end-date 20251231
 ```
 
-### 수동 업데이트 (특정 기간)
+### Factor 재계산
 ```bash
-python korea_factor_updater.py --start-date 2020-10-01 --end-date 2025-12-31
+python korea_factor_updater.py --filepath data/korea_factors_monthly.csv
 ```
 
 ---
 
-## 🛠️ 사용 방법
+## 💻 사용 방법
 
-### 1. 설치
+### 설치
 ```bash
-pip install pandas numpy wrds
+pip install pandas numpy wrds requests
 ```
 
-### 2. WRDS 설정
-```json
-{
-  "username": "your_wrds_username",
-  "password": "your_wrds_password"
-}
-```
-파일명: `wrds_config.json` (gitignored)
-
-### 3. 데이터 로드
+### 데이터 로드
 ```python
 import pandas as pd
 
-# 데이터 로드
+# Factor 데이터
 factors = pd.read_csv('data/korea_factors_monthly.csv', parse_dates=['date'])
-
-# 최근 데이터 확인
 print(factors.tail())
+
+# 무위험 수익률만
+rf = pd.read_csv('data/korea_rf_monthly.csv', parse_dates=['date'])
+print(rf.describe())
 ```
 
 ---
@@ -134,10 +202,16 @@ print(factors.tail())
 
 1. **Fama, E. F., & French, K. R. (1993)**  
    "Common risk factors in the returns on stocks and bonds"  
-   *Journal of Financial Economics*, 33(1), 3-56.
+   *Journal of Financial Economics*, 33(1), 3-56.  
+   DOI: 10.1016/0304-405X(93)90023-5
 
 2. **WRDS Compustat Global**  
+   Wharton Research Data Services  
    https://wrds-www.wharton.upenn.edu/
+
+3. **한국은행 경제통계시스템 (ECOS)**  
+   Bank of Korea Economic Statistics System  
+   https://ecos.bok.or.kr/
 
 ---
 
@@ -155,4 +229,5 @@ Academic Research Use Only
 ---
 
 **Last Updated**: 2025-10-22  
-**Data Coverage**: 2020-10-31 to 2025-10-31 (61 months)
+**Data Period**: 2020-10-31 to 2025-10-31 (61 months)  
+**RF Source**: Bank of Korea ECOS API (Stat: 817Y002)

@@ -1,23 +1,18 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
 .Python
-env/
 venv/
 .venv/
 
-# WRDS credentials
+# Credentials
+config.json
 wrds_config.json
+ecos_config.json
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
 
 # OS
 .DS_Store
-Thumbs.db
-ecos_config.json
