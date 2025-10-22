@@ -44,6 +44,37 @@ class KoreaFactorCalculator:
         self.risk_free_rate = risk_free_rate
         logger.info(f"Initialized KoreaFactorCalculator with RF={risk_free_rate*12*100:.2f}% annual")
     
+    def find_previous_trading_day(self, target_date: str, max_days_back: int = 10) -> str:
+        """
+        Find the most recent trading day with data before or on target_date.
+        
+        Args:
+            target_date: Target date in 'YYYY-MM-DD' format
+            max_days_back: Maximum days to search backwards
+        
+        Returns:
+            Date string of previous trading day with data
+        """
+        query = f"""
+        SELECT DISTINCT datadate
+        FROM comp.g_secd
+        WHERE fic = 'KOR'
+        AND datadate <= '{target_date}'
+        AND datadate >= DATE '{target_date}' - INTERVAL '{max_days_back}' DAY
+        AND prccd IS NOT NULL
+        ORDER BY datadate DESC
+        LIMIT 1
+        """
+        
+        result = self.conn.raw_sql(query)
+        if len(result) > 0:
+            trading_day = str(result['datadate'].iloc[0])[:10]
+            logger.info(f"Found trading day: {trading_day} for target: {target_date}")
+            return trading_day
+        else:
+            logger.warning(f"No trading day found near {target_date}")
+            return target_date
+    
     def form_portfolios(self, stocks_df: pd.DataFrame) -> Dict[str, List[str]]:
         """
         Form 6 portfolios based on size and value (2x3 sort).
@@ -150,7 +181,8 @@ class KoreaFactorCalculator:
         
         # Get portfolio formation date (end of previous month)
         current_date = datetime(year, month, 1)
-        formation_date = (current_date - relativedelta(months=1)).strftime('%Y-%m-%d')
+        formation_date_target = (current_date - relativedelta(months=1)).strftime('%Y-%m-%d')
+        formation_date = self.find_previous_trading_day(formation_date_target)
         
         # Get month-end date for returns
         if month == 12:
