@@ -20,3 +20,4 @@ wrds_config.json
 # OS
 .DS_Store
 Thumbs.db
+ecos_config.json
