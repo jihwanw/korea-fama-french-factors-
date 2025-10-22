@@ -5,6 +5,9 @@
 [![Data](https://img.shields.io/badge/Data-WRDS%20Compustat-blue)](https://wrds-www.wharton.upenn.edu/)
 [![RF](https://img.shields.io/badge/RF-BOK%20ECOS-green)](https://ecos.bok.or.kr/)
 [![Python](https://img.shields.io/badge/Python-3.8+-yellow)](https://www.python.org/)
+[![R](https://img.shields.io/badge/R-4.0+-red)](https://www.r-project.org/)
+
+**한국어** | [English](README_EN.md)
 
 ---
 
@@ -178,22 +181,46 @@ python korea_factor_updater.py --filepath data/korea_factors_monthly.csv
 
 ## 💻 사용 방법
 
-### 설치
+### Python
+
 ```bash
+# 설치
 pip install pandas numpy wrds requests
 ```
 
-### 데이터 로드
 ```python
 import pandas as pd
 
-# Factor 데이터
+# 데이터 로드
 factors = pd.read_csv('data/korea_factors_monthly.csv', parse_dates=['date'])
+
+# 요약 통계
+print(factors.describe())
 print(factors.tail())
 
-# 무위험 수익률만
-rf = pd.read_csv('data/korea_rf_monthly.csv', parse_dates=['date'])
-print(rf.describe())
+# 누적 수익률 계산
+factors['MKT_cum'] = (1 + factors['MKT']/100).cumprod() - 1
+```
+
+### R
+
+```r
+# 데이터 로드
+factors <- read.csv('data/korea_factors_monthly.csv')
+factors$date <- as.Date(factors$date)
+
+# 요약 통계
+summary(factors)
+tail(factors)
+
+# 누적 수익률 계산
+factors$MKT_cum <- cumprod(1 + factors$MKT/100) - 1
+
+# 시각화
+library(ggplot2)
+ggplot(factors, aes(x=date, y=MKT)) +
+  geom_line() +
+  labs(title="한국 시장 프리미엄", y="수익률 (%)")
 ```
 
 ---
