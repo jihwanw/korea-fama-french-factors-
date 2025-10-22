@@ -7,8 +7,6 @@ venv/
 
 # Credentials
 config.json
-wrds_config.json
-ecos_config.json
 
 # IDE
 .vscode/
