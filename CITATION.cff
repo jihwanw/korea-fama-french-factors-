@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this dataset, please cite it as below."
+title: "Korea Fama-French Factors (FF5 + Momentum)"
+authors:
+  - family-names: "Woo"
+    given-names: "Jihwan"
+    orcid: "https://orcid.org/0000-0002-0424-0242"
+type: dataset
+repository-code: "https://github.com/jihwanw/korea-fama-french-factors-"
+url: "https://github.com/jihwanw/korea-fama-french-factors-"
+abstract: "Monthly Fama-French five factors plus momentum (MKT-RF, SMB, HML, RMW, CMA, WML) for the Korean stock market (KOSPI and KOSDAQ), July 2001 to present. Constructed from WRDS Compustat Global security and fundamentals data with Bank of Korea ECOS risk-free rates, following Fama and French (1993, 2015) with documented Korean-market adaptations. Implementation verified by replicating official US Fama-French factors (correlations 0.96-0.999)."
+keywords:
+  - Fama-French factors
+  - Korea stock market
+  - asset pricing
+  - KOSPI
+  - KOSDAQ
+  - factor investing
+license: CC-BY-4.0

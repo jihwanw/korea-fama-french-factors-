@@ -1,405 +1,153 @@
-# Korea Fama-French Three Factors
+# 한국 주식시장 Fama-French 팩터 라이브러리 (FF5 + Momentum)
 
-한국 주식시장의 Fama-French 3 Factor 월별 데이터 (2020-10 ~ 2025-10)
+**2001년 7월 ~ 현재, 매월 자동 갱신되는 한국판 Ken French Data Library**
 
-[![Data](https://img.shields.io/badge/Data-WRDS%20Compustat-blue)](https://wrds-www.wharton.upenn.edu/)
+[![Data](https://img.shields.io/badge/Data-WRDS%20Compustat%20Global-blue)](https://wrds-www.wharton.upenn.edu/)
 [![RF](https://img.shields.io/badge/RF-BOK%20ECOS-green)](https://ecos.bok.or.kr/)
-[![Python](https://img.shields.io/badge/Python-3.8+-yellow)](https://www.python.org/)
-[![R](https://img.shields.io/badge/R-4.0+-red)](https://www.r-project.org/)
+[![Factors](https://img.shields.io/badge/Factors-6%20(FF5%2BWML)-orange)]()
+[![Months](https://img.shields.io/badge/Coverage-2001--07%20~%20now-brightgreen)]()
 
 **한국어** | [English](README_EN.md)
 
 ---
 
-## 📊 데이터
+## 이 저장소가 제공하는 것
 
-### 파일 구조
-```
-korea-fama-french-factors/
-├── README.md                          # 한국어 문서
-├── README_EN.md                       # 영어 문서
-├── data/
-│   └── korea_factors_monthly.csv      # 월별 3 Factor 데이터 (MKT, SMB, HML, RF)
-├── docs/
-│   ├── DATA_COLLECTION_WRDS.md        # WRDS 데이터 수집 가이드
-│   └── DATA_COLLECTION_ECOS.md        # ECOS API 사용 가이드
-├── korea_factor_calculator.py         # Factor 계산 로직
-├── korea_factor_updater.py            # Factor 자동 업데이트
-├── korea_rf_fetcher.py                # 무위험 수익률 수집
-├── korea_ticker_utils.py              # WRDS 데이터 조회 유틸리티
-└── fama_macbeth_test.py               # Fama-MacBeth 회귀 테스트
-```
+미국에는 [Ken French Data Library](https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html)가 있어 누구나 무료로 팩터 데이터를 받아 연구할 수 있습니다. 한국에는 그런 공개 라이브러리가 없었습니다. 이 저장소는 그 공백을 채웁니다.
 
-### Python 스크립트 설명
+- **6개 팩터 월간 시계열** (2001-07 ~ 현재, 302개월+): `MKT_RF` `SMB` `HML` `RMW` `CMA` `WML`
+- **완전한 재현 코드**: 데이터 수집부터 팩터 계산까지 전 과정 공개
+- **구현 증명**: 같은 코드로 미국 French 팩터를 재현해 정확성을 검증 (상관 0.96~0.999)
+- **매월 자동 갱신** + 버전별 DOI (논문 인용 가능)
 
-| 파일 | 설명 | 용도 |
-|------|------|------|
-| **korea_factor_calculator.py** | Fama-French 3 Factor 계산 | 포트폴리오 구성 및 Factor 계산 로직 |
-| **korea_factor_updater.py** | Factor 데이터 자동 업데이트 | 누락된 월 자동 감지 및 계산 |
-| **korea_rf_fetcher.py** | 무위험 수익률 수집 | 한국은행 ECOS API 연동 |
-| **korea_ticker_utils.py** | WRDS 데이터 조회 | 주가, 시총, 장부가치 조회 함수 |
-| **fama_macbeth_test.py** | Fama-MacBeth 회귀 테스트 | Factor 유의성 검정 및 통계 분석 |
-
-### 데이터 형식
 ```csv
-date,MKT,SMB,HML,RF
-2020-10-31,-1.95,0.25,1.43,0.057
-2020-11-30,15.22,0.59,-0.75,0.058
+month,MKT_RF,SMB,HML,RMW,CMA,WML,RF,MKT
+2001-07,-4.7057,1.0157,2.7511,...
 ...
+2026-08,,0.27,-2.993,-7.309,-1.143,3.274,,6.631
 ```
 
-### 변수 설명
-| 변수 | 설명 | 단위 |
-|------|------|------|
-| **date** | 월말 날짜 | YYYY-MM-DD |
-| **MKT** | Market Premium = 시장수익률 - RF | % |
-| **SMB** | Small Minus Big = 소형주 - 대형주 | % |
-| **HML** | High Minus Low = 가치주 - 성장주 | % |
-| **RF** | Risk-Free Rate = 국고채 1년 / 12 | % |
-
----
-
-## 🔬 방법론
-
-### Fama-MacBeth 2단계 회귀분석 (1973)
-
-Fama-MacBeth 회귀분석은 자산 가격 결정 모델을 검증하고 위험 프리미엄을 추정하는 표준 방법론입니다.
-
-**1단계: 시계열 회귀 (베타 추정)**
-```
-R_i,t - R_f,t = α_i + β_i,MKT(MKT_t) + β_i,SMB(SMB_t) + β_i,HML(HML_t) + ε_i,t
-```
-- 각 자산의 팩터 민감도(베타) 추정
-- 과거 60개월 데이터 사용
-
-**2단계: 횡단면 회귀 (프리미엄 추정)**
-```
-R_i,t = γ_0,t + γ_MKT,t β_i,MKT + γ_SMB,t β_i,SMB + γ_HML,t β_i,HML + η_i,t
-```
-- 매월 모든 자산에 대해 횡단면 회귀 실행
-- 팩터 프리미엄(γ) 추정
-
-**3단계: 시계열 평균 및 검정**
-```
-γ̄_j = (1/T) Σ γ_j,t
-t-stat = γ̄_j / SE(γ̄_j)
-```
-- 평균 팩터 프리미엄 계산
-- 통계적 유의성 검정
-
-**참고문헌**: Fama, E. F., & MacBeth, J. D. (1973). "Risk, Return, and Equilibrium: Empirical Tests." *Journal of Political Economy*, 81(3), 607-636.
-
----
-
-### Fama-French 3 Factor Model (1993)
-
-#### 1단계: 포트폴리오 구성 (2x3 Sort)
-
-**Size 분류** (시가총액 기준)
-- Small (S): 중위수 이하
-- Big (B): 중위수 초과
-
-**Value 분류** (Book-to-Market 기준)
-- Low (L): 상위 30% (가치주)
-- Medium (M): 중간 40%
-- High (H): 하위 30% (성장주)
-
-**6개 포트폴리오**: S/L, S/M, S/H, B/L, B/M, B/H
-
-#### 2단계: Factor 계산
-
-```
-SMB = (S/L + S/M + S/H)/3 - (B/L + B/M + B/H)/3
-HML = (S/L + B/L)/2 - (S/H + B/H)/2
-MKT = 시장 가치가중 수익률 - RF
-```
-
----
-
-## 📥 데이터 출처 및 수집 방법
-
-### 1. 주가 및 시가총액
-
-**출처**: WRDS Compustat Global Security Daily
-
-**접근 방법**:
-1. WRDS 계정 필요: https://wrds-www.wharton.upenn.edu/
-2. 기관 구독 필요 (대학/연구기관)
-
-**데이터베이스**: `comp.g_secd`
-
-**SQL 쿼리 예시**:
-```sql
-SELECT gvkey, iid, datadate, conm, prccd, ajexdi, cshoc,
-       (prccd / ajexdi * cshoc) as market_cap
-FROM comp.g_secd
-WHERE fic = 'KOR'
-  AND datadate = '2020-10-31'
-  AND prccd IS NOT NULL
-  AND cshoc IS NOT NULL
-ORDER BY market_cap DESC
-```
-
-**필드 설명**:
-- `prccd`: 종가 (Closing Price)
-- `ajexdi`: 조정계수 (Adjustment Factor for splits/dividends)
-- `cshoc`: 발행주식수 (Shares Outstanding)
-- `market_cap`: 시가총액 = prccd / ajexdi * cshoc
-
-**상세 가이드**: [docs/DATA_COLLECTION_WRDS.md](docs/DATA_COLLECTION_WRDS.md)
-
----
-
-### 2. 장부가치 (Book Equity)
-
-**출처**: WRDS Compustat Global Fundamentals Annual
-
-**데이터베이스**: `comp.g_funda`
-
-**SQL 쿼리 예시**:
-```sql
-SELECT gvkey, datadate, ceq, at
-FROM comp.g_funda
-WHERE fic = 'KOR'
-  AND datadate <= '2020-10-31'
-  AND datadate >= '2018-10-31'
-  AND ceq IS NOT NULL
-  AND ceq > 0
-ORDER BY datadate DESC
-```
-
-**필드 설명**:
-- `ceq`: 보통주 자본 (Common Equity)
-- `at`: 총자산 (Total Assets)
-
-**처리 방법**: 각 종목의 가장 최근 연간 데이터 사용
-
----
-
-### 3. 무위험 수익률 (Risk-Free Rate)
-
-**출처**: 한국은행 경제통계시스템 (ECOS)
-
-**API 접근 방법**:
-
-1. **API 키 발급**
-   - URL: https://ecos.bok.or.kr/
-   - 회원가입 → 로그인 → "인증키 신청/관리"
-   - 용도: "학술연구" 선택
-   - 즉시 발급
-
-2. **통계표 정보**
-   - 통계표코드: `817Y002`
-   - 통계항목코드: `010190000`
-   - 통계명: 국고채(1년) 수익률
-   - 주기: 일별(D)
-   - 단위: 연율(%)
-
-3. **API 호출 예시**
-```bash
-curl "https://ecos.bok.or.kr/api/StatisticSearch/YOUR_API_KEY/json/kr/1/10000/817Y002/D/20201001/20251031/010190000"
-```
-
-4. **데이터 처리**
-   - 일별 데이터 → 월별 평균 계산
-   - 연율(%) → 월율(%) 변환: `annual_rate / 12`
-
-**Python 스크립트**: `korea_rf_fetcher.py`
-
-**실행 방법**:
-```bash
-python korea_rf_fetcher.py --config config.json
-```
-
-**상세 가이드**: [docs/DATA_COLLECTION_ECOS.md](docs/DATA_COLLECTION_ECOS.md)
-
----
-
-## 🔄 데이터 업데이트
-
-### 무위험 수익률 업데이트
-```bash
-python korea_rf_fetcher.py --config config.json --start-date 20201001 --end-date 20251231
-```
-
-### Factor 재계산
-```bash
-python korea_factor_updater.py --filepath data/korea_factors_monthly.csv
-```
-
-### Factor 유의성 테스트
-```bash
-python fama_macbeth_test.py
-```
-
----
-
-## 💻 사용 방법
-
-### Python
-
-```bash
-# 설치
-pip install pandas numpy wrds requests
-```
+## 빠른 시작
 
 ```python
 import pandas as pd
-
-# 데이터 로드
-factors = pd.read_csv('data/korea_factors_monthly.csv', parse_dates=['date'])
-
-# 요약 통계
-print(factors.describe())
-print(factors.tail())
-
-# 누적 수익률 계산
-factors['MKT_cum'] = (1 + factors['MKT']/100).cumprod() - 1
+url = "https://raw.githubusercontent.com/jihwanw/korea-fama-french-factors-/main/data/factors_monthly_kr_ff5.csv"
+factors = pd.read_csv(url, index_col=0, parse_dates=False)
+print(factors.tail())      # 단위: % (월간)
 ```
-
-### R
 
 ```r
-# 데이터 로드
-factors <- read.csv('data/korea_factors_monthly.csv')
-factors$date <- as.Date(factors$date)
-
-# 요약 통계
-summary(factors)
+factors <- read.csv("https://raw.githubusercontent.com/jihwanw/korea-fama-french-factors-/main/data/factors_monthly_kr_ff5.csv")
 tail(factors)
-
-# 누적 수익률 계산
-factors$MKT_cum <- cumprod(1 + factors$MKT/100) - 1
-
-# 시각화
-library(ggplot2)
-ggplot(factors, aes(x=date, y=MKT)) +
-  geom_line() +
-  labs(title="한국 시장 프리미엄", y="수익률 (%)")
 ```
 
----
-
-## 📚 참고문헌
-
-### 핵심 논문
-
-1. **Fama, E. F., & MacBeth, J. D. (1973)**  
-   "Risk, Return, and Equilibrium: Empirical Tests"  
-   *Journal of Political Economy*, 81(3), 607-636.  
-   DOI: [10.1086/260061](https://doi.org/10.1086/260061)
-
-2. **Fama, E. F., & French, K. R. (1993)**  
-   "Common risk factors in the returns on stocks and bonds"  
-   *Journal of Financial Economics*, 33(1), 3-56.  
-   DOI: [10.1016/0304-405X(93)90023-5](https://doi.org/10.1016/0304-405X(93)90023-5)
-
-3. **Fama, E. F., & French, K. R. (2015)**  
-   "A five-factor asset pricing model"  
-   *Journal of Financial Economics*, 116(1), 1-22.  
-   DOI: [10.1016/j.jfineco.2014.10.010](https://doi.org/10.1016/j.jfineco.2014.10.010)
-
-### 데이터 출처
-
-4. **WRDS Compustat Global**  
-   Wharton Research Data Services  
-   https://wrds-www.wharton.upenn.edu/
-
-5. **한국은행 경제통계시스템 (ECOS)**  
-   Bank of Korea Economic Statistics System  
-   https://ecos.bok.or.kr/
-
-### 방법론 참고
-
-6. **Newey, W. K., & West, K. D. (1987)**  
-   "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix"  
-   *Econometrica*, 55(3), 703-708.
-
-7. **Cochrane, J. H. (2005)**  
-   *Asset Pricing* (Revised Edition)  
-   Princeton University Press.
-
-### 추가 자료
-
-- **Kenneth French Data Library**: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
-- **AQR Capital Management Datasets**: https://www.aqr.com/Insights/Datasets
+더 많은 예제: [`examples/`](examples/) — 포트폴리오 초과수익률 회귀, Fama-MacBeth 검정 실습 포함.
 
 ---
 
-## 📄 라이선스 및 면책사항
+## 팩터가 처음이라면: 3분 설명
 
-### 라이선스
+주식 수익률은 왜 종목마다 다를까요? Fama와 French는 수익률 차이의 상당 부분이 몇 가지 **공통 요인(팩터)**으로 설명된다는 것을 보였습니다. 각 팩터는 "특정 성질을 가진 주식을 사고, 반대 성질의 주식을 파는 가상의 포트폴리오"의 수익률입니다.
 
-**MIT License**
+| 팩터 | 읽는 법 | 사는 것 / 파는 것 | 직관 |
+|---|---|---|---|
+| MKT_RF | 시장 | 주식시장 전체 / 무위험자산 | "주식을 들고 있는 대가" |
+| SMB | Small Minus Big | 소형주 / 대형주 | "작은 회사가 더 벌까?" |
+| HML | High Minus Low | 가치주(장부가/시가 높음) / 성장주 | "싸게 거래되는 회사가 더 벌까?" |
+| RMW | Robust Minus Weak | 고수익성 기업 / 저수익성 기업 | "돈 잘 버는 회사가 더 벌까?" |
+| CMA | Conservative Minus Aggressive | 투자 보수적 기업 / 공격적 기업 | "몸집 불리기에 신중한 회사가 더 벌까?" |
+| WML | Winners Minus Losers | 최근 1년 상승주 / 하락주 | "오르던 주식이 계속 오를까?" |
 
-Copyright (c) 2025 [Your Name]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-### 학술 연구 목적
-
-본 프로젝트는 **학술 연구 및 교육 목적으로만** 사용됩니다.
-
-### 중요 면책사항
-
-⚠️ **투자 조언 아님**
-- 본 연구는 학술 목적으로만 제공되며 투자 조언이 아닙니다
-- 연구 결과를 투자 결정의 유일한 근거로 사용해서는 안 됩니다
-- 투자 결정 전 반드시 전문 금융 자문가와 상담하시기 바랍니다
-
-⚠️ **과거 성과**
-- 과거 성과가 미래 수익을 보장하지 않습니다
-- 역사적 수익률은 미래 성과를 나타내지 않습니다
-- 시장 상황은 변화하며 역사적 패턴이 지속되지 않을 수 있습니다
-
-⚠️ **데이터 한계**
-- 데이터에 오류, 누락 또는 부정확성이 포함될 수 있습니다
-- 결과는 데이터 품질 및 방법론 선택에 민감합니다
-- 생존편향 완화 노력에도 불구하고 역사적 분석에 영향을 미칠 수 있습니다
-
-⚠️ **모델 리스크**
-- 자산 가격 결정 모델은 현실의 단순화입니다
-- 팩터 모델이 모든 위험 요인을 포착하지 못할 수 있습니다
-- 모델 파라미터는 불확실성을 가지고 추정됩니다
-
-⚠️ **보증 없음**
-- 본 소프트웨어는 "있는 그대로" 제공되며 어떠한 보증도 없습니다
-- 저자는 본 소프트웨어 사용으로 인한 손실이나 손해에 대해 책임지지 않습니다
-- 사용자는 본 연구 사용과 관련된 모든 위험을 부담합니다
-
-⚠️ **규제 준수**
-- 사용자는 해당 증권법 준수에 대한 책임이 있습니다
-- 본 연구는 증권 제공 또는 권유를 구성하지 않습니다
-- 귀하의 관할권 내 규제 요구사항에 대해 법률 자문을 구하시기 바랍니다
-
-### 데이터 출처 표시
-
-- **WRDS Compustat Global**: © Wharton Research Data Services
-- **한국은행 ECOS**: © Bank of Korea Economic Statistics System
-- **Fama-French Methodology**: © Eugene F. Fama & Kenneth R. French
-
-### 책임있는 사용
-
-본 소프트웨어를 사용함으로써 귀하는 다음에 동의합니다:
-1. 학술, 교육 또는 연구 목적으로만 사용
-2. 투자 결정의 유일한 근거로 사용하지 않음
-3. 출판물이나 발표에서 본 연구를 적절히 인용
-4. 모든 해당 데이터 라이선스 계약 준수
-5. 위에 설명된 한계와 위험을 인정
+이 데이터로 할 수 있는 것: 펀드 성과 평가(알파 측정), 이상현상(anomaly) 연구, 자산가격결정 모형 검정, 포트폴리오 리스크 분해 — 즉 실증 재무 연구의 기본 재료입니다.
 
 ---
 
-## 📞 문의
+## 이 코드를 믿어도 되나요? — 미국 데이터로 증명했습니다
 
-- GitHub: [@jihwanw](https://github.com/jihwanw)
-- Repository: [korea-fama-french-factors](https://github.com/jihwanw/korea-fama-french-factors-)
+팩터 구축에는 수십 개의 세부 결정이 필요하고, 하나만 틀려도 결과가 달라집니다. "우리 구현이 Fama-French 명세 그대로"라는 주장을 **실험으로 증명**했습니다.
+
+> **아이디어**: Fama-French는 미국 팩터의 정답지를 매달 공개한다. 우리 코드를 미국 데이터(CRSP/Compustat)에 적용해서 그 정답지가 재현되면, 코드가 옳다는 뜻이다.
+
+**결과** (1995-07 ~ 2024-12, 354개월, [`src/us_replication.py`](src/us_replication.py)):
+
+| 팩터 | 자체 구현 vs French 공식 상관계수 |
+|---|---|
+| MKT | **0.9992** |
+| SMB | **0.9930** |
+| HML | **0.9612** |
+| RMW | **0.9615** |
+| CMA | **0.9713** |
+
+학술 재현 연구들의 벤치마크(SMB ~0.99, HML ~0.96)와 같은 수준입니다. 즉, **소트·브레이크포인트·가중·공식 로직이 FF 명세대로 작동함이 검증**되었고, 한국 팩터는 "검증된 코드 + 한국 데이터"입니다. 상세 감사표: [`docs/COMPLIANCE.md`](docs/COMPLIANCE.md)
 
 ---
 
-**Last Updated**: 2025-10-22  
-**Data Period**: 2020-10-31 to 2025-10-31 (61 months)  
-**RF Source**: Bank of Korea ECOS API (Stat: 817Y002)
+## 한국 시장 적용: 무엇을 가정했고 왜 그랬나
+
+미국 방법론을 한국에 그대로 옮길 수는 없습니다. 우리가 내린 결정들과 그 이유입니다 (초심자용 비유 포함):
+
+**1. KOSPI가 NYSE 역할을 합니다 (브레이크포인트)**
+FF는 "대형/소형"의 기준선을 NYSE 종목만으로 정합니다. NASDAQ의 수많은 초소형주가 기준을 왜곡하지 않게 하기 위해서입니다. 한국의 유사 구조는 KOSPI(본장)와 KOSDAQ이므로, **기준선은 KOSPI 종목만으로** 정하고 KOSDAQ 종목을 그 기준에 따라 분류합니다.
+
+**2. 무위험수익률은 CD 91일 금리입니다**
+미국은 1개월 T-bill을 쓰지만 한국에는 그에 정확히 대응하는 초단기 국채 시계열이 없습니다. 한국 실증 연구의 관행대로 **CD(91일) 금리**(한국은행 ECOS)를 월 단위로 환산해 사용합니다.
+
+**3. 리밸런싱은 매년 6월 말입니다**
+작년 재무제표가 시장에 공시된 후에만 사용해야 합니다(미래 정보 금지, look-ahead bias 방지). 한국 상장사 대부분은 12월 결산이고 사업보고서는 3월 말까지 제출되므로, 6월 말 리밸런싱은 **최소 3개월의 안전 여유**를 둔 선택입니다 (FF 원전과 동일한 시점).
+
+**4. 상장폐지 주식도 포함합니다 (생존 편향 제거)**
+"지금 살아남은 종목"만으로 과거를 계산하면 수익률이 부풀려집니다(생존 편향). 우리 데이터는 **상장폐지된 기업을 포함**하며, 부실 상폐 종목에는 마지막 거래 다음 달 **-30% 수익률**을 부여합니다(Shumway 1997의 학술 표준). 합병으로 사라진 종목은 주주가 대가를 받으므로 조정하지 않습니다. 민감도 분석 결과 이 조정이 팩터에 주는 영향은 월 0.012%p 이하로 미미하지만, 원칙의 문제이므로 적용합니다.
+
+**5. 장부가치는 보통주 자본(CEQ)입니다**
+FF의 미국 정의는 "자본총계 + 이연법인세 − 우선주"인데, 한국(K-IFRS) 데이터에서는 **보통주 자본(CEQ)**이 그에 가장 가까운 실용적 근사입니다. 이연법인세 가산을 생략한 단순화이며, 이런 이탈은 전부 [`docs/COMPLIANCE.md`](docs/COMPLIANCE.md)에 명시했습니다.
+
+**6. 검증: 시장 팩터가 진짜 시장을 따라가나?**
+자체 계산한 시장수익률과 KOSPI 지수의 상관은 **0.994**입니다. 2008년 10월(금융위기 −24%), 2020년 3월(COVID −11%) 같은 사건들도 정확히 잡힙니다. 전체 검증: [`docs/VALIDATION.md`](docs/VALIDATION.md)
+
+---
+
+## 알려진 한계 (정직하게)
+
+- **투자 전략이 아닙니다**: 팩터는 거래비용·공매도 제약·유동성을 무시한 *학술적 구성물*입니다. 특히 소형주 기반 수익률은 실제로 얻기 어렵습니다.
+- **CMA는 비유의**: 한국에서 투자 팩터는 통계적으로 유의하지 않습니다(국제적으로도 가장 약한 팩터). 데이터는 제공하되 해석에 주의하세요.
+- **원천 데이터 접근**: 팩터(집계 파생물)는 공개하지만, 원천 데이터(WRDS)는 각자 라이선스로 접근해야 재현할 수 있습니다.
+- 상세: [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) §6
+
+## 인용 방법
+
+논문에서 이 데이터를 사용하실 때:
+
+> Woo, Jihwan. *Korea Fama-French Factors (FF5 + Momentum)* [Data set]. Zenodo. https://doi.org/10.5281/zenodo.XXXXXXX
+
+- **Concept DOI**(위)는 항상 최신 버전을 가리킵니다 — 일반적 인용에 권장
+- 특정 월 버전의 재현이 필요하면 해당 릴리스의 **Version DOI**를 인용하세요
+- GitHub의 "Cite this repository" 버튼으로 BibTeX을 받을 수 있습니다
+
+## 갱신 주기
+
+매월 초(전월 데이터 확정 후) 자동 갱신되며, 갱신마다 새 릴리스와 Version DOI가 발급됩니다. `MKT_RF`와 `RF`는 한국은행 CD금리 공표 일정에 따라 1개월 정도 늦게 채워질 수 있습니다.
+
+## 저장소 구조
+
+```
+data/       팩터 CSV (메인: factors_monthly_kr_ff5.csv)
+docs/       방법론·검증·준수 감사·데이터 수집 가이드
+src/        팩터 구축·검증·미국 재현·월간 갱신 코드
+examples/   pandas/R 로드, Fama-MacBeth 검정 실습
+```
+
+## 관련 저장소
+
+- [fama-french-3factor](https://github.com/jihwanw/fama-french-3factor) — 미국 FF3 구현 (DOI: 10.5281/zenodo.18883631)
+- [fama-french-5factor](https://github.com/jihwanw/fama-french-5factor) — 미국 FF5 구현 (DOI: 10.5281/zenodo.18883752)
+
+## 라이선스와 면책
+
+- 코드: MIT · 데이터: CC-BY-4.0 (인용 조건 재사용 가능)
+- 본 데이터는 연구·교육 목적으로 제공되며 투자 조언이 아닙니다. 정확성을 위해 노력했으나 오류가 있을 수 있고, 사용에 따른 책임은 사용자에게 있습니다.
+
+## 만든 사람
+
+**우지환 (Jihwan Woo)** — Ph.D., AI/금융 연구자 · [홈페이지](https://jihwanw.github.io/) · [ORCID 0000-0002-0424-0242](https://orcid.org/0000-0002-0424-0242)
+
+질문·오류 제보는 [Issues](../../issues)로, 개선 기여는 PR로 환영합니다. 이 저장소가 유용했다면 Star와 Fork 부탁드립니다.

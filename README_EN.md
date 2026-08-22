@@ -1,230 +1,95 @@
-# Korea Fama-French Three Factors
+# Korea Fama-French Factors Library (FF5 + Momentum)
 
-Monthly Fama-French 3 Factor data for Korean stock market (Oct 2020 - Oct 2025)
+**Monthly factor returns for the Korean stock market, July 2001 – present. Updated monthly. The Korean analog of the Ken French Data Library.**
 
-[![Data](https://img.shields.io/badge/Data-WRDS%20Compustat-blue)](https://wrds-www.wharton.upenn.edu/)
+[![Data](https://img.shields.io/badge/Data-WRDS%20Compustat%20Global-blue)](https://wrds-www.wharton.upenn.edu/)
 [![RF](https://img.shields.io/badge/RF-BOK%20ECOS-green)](https://ecos.bok.or.kr/)
-[![Python](https://img.shields.io/badge/Python-3.8+-yellow)](https://www.python.org/)
-[![R](https://img.shields.io/badge/R-4.0+-red)](https://www.r-project.org/)
+[![Factors](https://img.shields.io/badge/Factors-6%20(FF5%2BWML)-orange)]()
 
 [한국어](README.md) | **English**
 
 ---
 
-## 📊 Data
+## What This Repository Provides
 
-### File Structure
-```
-korea-fama-french-factors/
-├── README.md                          # Korean documentation
-├── README_EN.md                       # English documentation
-├── data/
-│   └── korea_factors_monthly.csv      # Monthly 3 Factor data (MKT, SMB, HML, RF)
-├── docs/
-│   ├── DATA_COLLECTION_WRDS.md        # WRDS data collection guide
-│   └── DATA_COLLECTION_ECOS.md        # ECOS API usage guide
-├── korea_factor_calculator.py         # Factor calculation logic
-├── korea_factor_updater.py            # Automatic factor updater
-├── korea_rf_fetcher.py                # Risk-free rate fetcher
-├── korea_ticker_utils.py              # WRDS data query utilities
-└── fama_macbeth_test.py               # Fama-MacBeth regression test
-```
+- **6 monthly factors** (2001-07 – present, 302+ months): `MKT_RF` `SMB` `HML` `RMW` `CMA` `WML`
+- **Fully reproducible pipeline**: from raw data pull to factor construction
+- **Proof of implementation**: the same code replicates the official US French factors (corr 0.96–0.999)
+- **Monthly automated updates** with per-version DOIs for academic citation
 
-### Python Scripts
-
-| File | Description | Purpose |
-|------|-------------|----------|
-| **korea_factor_calculator.py** | Fama-French 3 Factor calculator | Portfolio formation and factor calculation |
-| **korea_factor_updater.py** | Automatic factor updater | Detect missing months and calculate |
-| **korea_rf_fetcher.py** | Risk-free rate fetcher | Fetch data from BOK ECOS API |
-| **korea_ticker_utils.py** | WRDS data utilities | Query stock prices, market cap, book equity |
-| **fama_macbeth_test.py** | Fama-MacBeth regression test | Test factor significance and statistics |
-
-### Data Format
-```csv
-date,MKT,SMB,HML,RF
-2020-10-31,-1.95,0.25,1.43,0.057
-2020-11-30,15.22,0.59,-0.75,0.058
-...
-```
-
-### Variable Descriptions
-| Variable | Description | Unit |
-|----------|-------------|------|
-| **date** | Month-end date | YYYY-MM-DD |
-| **MKT** | Market Premium = Market Return - RF | % |
-| **SMB** | Small Minus Big = Small - Large cap | % |
-| **HML** | High Minus Low = Value - Growth | % |
-| **RF** | Risk-Free Rate = 1-year treasury / 12 | % |
-
----
-
-## 🔬 Methodology
-
-### Fama-French 3 Factor Model (1993)
-
-#### Step 1: Portfolio Formation (2x3 Sort)
-
-**Size Classification** (Market Cap)
-- Small (S): Below median
-- Big (B): Above median
-
-**Value Classification** (Book-to-Market)
-- Low (L): Top 30% (Value)
-- Medium (M): Middle 40%
-- High (H): Bottom 30% (Growth)
-
-**6 Portfolios**: S/L, S/M, S/H, B/L, B/M, B/H
-
-#### Step 2: Factor Calculation
-
-```
-SMB = (S/L + S/M + S/H)/3 - (B/L + B/M + B/H)/3
-HML = (S/L + B/L)/2 - (S/H + B/H)/2
-MKT = Value-weighted market return - RF
-```
-
----
-
-## 📥 Data Sources
-
-### 1. Stock Prices & Market Cap
-
-**Source**: WRDS Compustat Global Security Daily
-
-**Access**: 
-- WRDS account required: https://wrds-www.wharton.upenn.edu/
-- Institutional subscription needed
-
-**Database**: `comp.g_secd`
-
-**Fields**:
-- `prccd`: Closing Price
-- `ajexdi`: Adjustment Factor
-- `cshoc`: Shares Outstanding
-- `market_cap = prccd / ajexdi * cshoc`
-
-**Guide**: [docs/DATA_COLLECTION_WRDS.md](docs/DATA_COLLECTION_WRDS.md)
-
----
-
-### 2. Book Equity
-
-**Source**: WRDS Compustat Global Fundamentals Annual
-
-**Database**: `comp.g_funda`
-
-**Fields**:
-- `ceq`: Common Equity
-- Most recent annual data used
-
----
-
-### 3. Risk-Free Rate
-
-**Source**: Bank of Korea Economic Statistics System (ECOS)
-
-**API Access**:
-1. Get API key: https://ecos.bok.or.kr/
-2. Stat Code: `817Y002` (1-year Korea treasury bond)
-3. Item Code: `010190000`
-4. Frequency: Daily → Monthly average
-5. Conversion: Annual rate / 12 = Monthly rate
-
-**Guide**: [docs/DATA_COLLECTION_ECOS.md](docs/DATA_COLLECTION_ECOS.md)
-
----
-
-## 💻 Usage
-
-### Python
+## Quick Start
 
 ```python
 import pandas as pd
-
-# Load data
-factors = pd.read_csv('data/korea_factors_monthly.csv', parse_dates=['date'])
-
-# View summary
-print(factors.describe())
-print(factors.tail())
-
-# Calculate cumulative returns
-factors['MKT_cum'] = (1 + factors['MKT']/100).cumprod() - 1
+url = "https://raw.githubusercontent.com/jihwanw/korea-fama-french-factors-/main/data/factors_monthly_kr_ff5.csv"
+factors = pd.read_csv(url, index_col=0)   # units: % per month
 ```
 
-### R
+More examples in [`examples/`](examples/), including a Fama-MacBeth regression tutorial.
 
-```r
-# Load data
-factors <- read.csv('data/korea_factors_monthly.csv')
-factors$date <- as.Date(factors$date)
+## New to Factors? A 3-Minute Primer
 
-# View summary
-summary(factors)
-tail(factors)
+Each factor is the return of a hypothetical portfolio that buys stocks with one trait and sells stocks with the opposite trait:
 
-# Calculate cumulative returns
-factors$MKT_cum <- cumprod(1 + factors$MKT/100) - 1
+| Factor | Long / Short | Intuition |
+|---|---|---|
+| MKT_RF | market / risk-free | reward for holding stocks |
+| SMB | small caps / large caps | do small firms earn more? |
+| HML | value / growth | do cheap firms earn more? |
+| RMW | profitable / unprofitable | does profitability pay? |
+| CMA | conservative / aggressive investment | does restraint pay? |
+| WML | recent winners / losers | do winners keep winning? |
 
-# Plot
-library(ggplot2)
-ggplot(factors, aes(x=date, y=MKT)) +
-  geom_line() +
-  labs(title="Korea Market Premium", y="Return (%)")
-```
+Use cases: fund performance evaluation (alpha), anomaly research, asset-pricing tests, risk decomposition.
 
----
+## Can You Trust This Code? — Proven on US Data
 
-## 🔄 Data Update
+Factor construction involves dozens of subtle decisions. Instead of claiming correctness, we **proved it experimentally**: applying this exact pipeline to US CRSP/Compustat data reproduces the officially published Fama-French factors.
 
-### Update Risk-Free Rate
-```bash
-python korea_rf_fetcher.py --config config.json
-```
+**Results** (1995-07 – 2024-12, 354 months, [`src/us_replication.py`](src/us_replication.py)):
 
-### Recalculate Factors
-```bash
-python korea_factor_updater.py --filepath data/korea_factors_monthly.csv
-```
+| Factor | Correlation with official French factors |
+|---|---|
+| MKT | **0.9992** |
+| SMB | **0.9930** |
+| HML | **0.9612** |
+| RMW | **0.9615** |
+| CMA | **0.9713** |
 
-### Test Factor Significance
-```bash
-python fama_macbeth_test.py
-```
+These match the benchmarks of published replication studies. The Korean factors are therefore *verified logic + Korean data*. Full audit: [`docs/COMPLIANCE.md`](docs/COMPLIANCE.md)
 
----
+## Adapting to Korea: Key Assumptions
 
-## 📚 References
+1. **KOSPI plays the role of NYSE** — breakpoints use KOSPI stocks only; KOSDAQ stocks are then classified by those breakpoints (mirroring the NYSE/NASDAQ convention).
+2. **Risk-free rate = 91-day CD rate** (Bank of Korea ECOS) — the standard proxy in Korean empirical research.
+3. **Annual rebalancing at end of June** — Korean firms are predominantly December fiscal-year-end with annual reports due by end of March, so June leaves a 3-month safety lag against look-ahead bias (same timing as FF).
+4. **Delisted stocks included** (no survivorship bias) — performance-related delistings receive a −30% delisting return (Shumway 1997); mergers are not adjusted. Sensitivity analysis: impact ≤1.2bp/month on all factors.
+5. **Book equity = CEQ** (common equity) — the practical K-IFRS approximation of FF's SEQ+TXDITC−PS; documented as a simplification in [`docs/COMPLIANCE.md`](docs/COMPLIANCE.md).
+6. **Market factor validated**: correlation 0.994 with the KOSPI index; crisis months (Oct 2008, Mar 2020) captured exactly. Full validation: [`docs/VALIDATION.md`](docs/VALIDATION.md)
 
-1. **Fama, E. F., & French, K. R. (1993)**  
-   "Common risk factors in the returns on stocks and bonds"  
-   *Journal of Financial Economics*, 33(1), 3-56.  
-   DOI: 10.1016/0304-405X(93)90023-5
+## Known Limitations
 
-2. **WRDS Compustat Global**  
-   Wharton Research Data Services  
-   https://wrds-www.wharton.upenn.edu/
+- These are *academic constructs*, not tradable strategies (no transaction costs, shorting constraints, or liquidity limits).
+- CMA is statistically insignificant in Korea (as in many non-US markets) — provided, but interpret with care.
+- Factors (aggregated derivatives) are public; reproducing them requires your own WRDS license for raw data.
 
-3. **Bank of Korea ECOS**  
-   Economic Statistics System  
-   https://ecos.bok.or.kr/
+## Citation
 
----
+> Woo, Jihwan. *Korea Fama-French Factors (FF5 + Momentum)* [Data set]. Zenodo. https://doi.org/10.5281/zenodo.XXXXXXX
 
-## 📄 License
+Use the Concept DOI above for general citation; cite a release-specific Version DOI for exact reproducibility. BibTeX available via GitHub's "Cite this repository" button.
 
-Academic Research Use Only
+## Related Repositories
 
----
+- [fama-french-3factor](https://github.com/jihwanw/fama-french-3factor) — US FF3 implementation (DOI: 10.5281/zenodo.18883631)
+- [fama-french-5factor](https://github.com/jihwanw/fama-french-5factor) — US FF5 implementation (DOI: 10.5281/zenodo.18883752)
 
-## 📞 Contact
+## License & Disclaimer
 
-- GitHub: [@jihwanw](https://github.com/jihwanw)
-- Repository: [korea-fama-french-factors](https://github.com/jihwanw/korea-fama-french-factors-)
+Code: MIT · Data: CC-BY-4.0. Provided for research and education; not investment advice.
 
----
+## Author
 
-**Last Updated**: 2025-10-22  
-**Data Period**: 2020-10-31 to 2025-10-31 (61 months)  
-**RF Source**: Bank of Korea ECOS API (Stat: 817Y002)
+**Jihwan Woo** — Ph.D., AI/Finance researcher · [Homepage](https://jihwanw.github.io/) · [ORCID 0000-0002-0424-0242](https://orcid.org/0000-0002-0424-0242)
+
+Issues and PRs welcome. If this repository helps your research, please star and fork.
