@@ -5,6 +5,7 @@
 [![Data](https://img.shields.io/badge/Data-WRDS%20Compustat%20Global-blue)](https://wrds-www.wharton.upenn.edu/)
 [![RF](https://img.shields.io/badge/RF-BOK%20ECOS-green)](https://ecos.bok.or.kr/)
 [![Factors](https://img.shields.io/badge/Factors-6%20(FF5%2BWML)-orange)]()
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22059320.svg)](https://doi.org/10.5281/zenodo.22059320)
 [![Months](https://img.shields.io/badge/Coverage-2001--07%20~%20now-brightgreen)]()
 
 **한국어** | [English](README_EN.md)
@@ -117,7 +118,7 @@ FF의 미국 정의는 "자본총계 + 이연법인세 − 우선주"인데, 한
 
 논문에서 이 데이터를 사용하실 때:
 
-> Woo, Jihwan. *Korea Fama-French Factors (FF5 + Momentum)* [Data set]. Zenodo. https://doi.org/10.5281/zenodo.XXXXXXX
+> Woo, Jihwan. *Korea Fama-French Factors (FF5 + Momentum)* [Data set]. Zenodo. https://doi.org/10.5281/zenodo.22059320
 
 - **Concept DOI**(위)는 항상 최신 버전을 가리킵니다 — 일반적 인용에 권장
 - 특정 월 버전의 재현이 필요하면 해당 릴리스의 **Version DOI**를 인용하세요

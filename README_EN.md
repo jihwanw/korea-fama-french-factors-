@@ -4,6 +4,7 @@
 
 [![Data](https://img.shields.io/badge/Data-WRDS%20Compustat%20Global-blue)](https://wrds-www.wharton.upenn.edu/)
 [![RF](https://img.shields.io/badge/RF-BOK%20ECOS-green)](https://ecos.bok.or.kr/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22059320.svg)](https://doi.org/10.5281/zenodo.22059320)
 [![Factors](https://img.shields.io/badge/Factors-6%20(FF5%2BWML)-orange)]()
 
 [한국어](README.md) | **English**
@@ -75,7 +76,7 @@ These match the benchmarks of published replication studies. The Korean factors 
 
 ## Citation
 
-> Woo, Jihwan. *Korea Fama-French Factors (FF5 + Momentum)* [Data set]. Zenodo. https://doi.org/10.5281/zenodo.XXXXXXX
+> Woo, Jihwan. *Korea Fama-French Factors (FF5 + Momentum)* [Data set]. Zenodo. https://doi.org/10.5281/zenodo.22059320
 
 Use the Concept DOI above for general citation; cite a release-specific Version DOI for exact reproducibility. BibTeX available via GitHub's "Cite this repository" button.
 
