@@ -123,6 +123,7 @@ FF의 미국 정의는 "자본총계 + 이연법인세 − 우선주"인데, 한
 - **Concept DOI**(위)는 항상 최신 버전을 가리킵니다 — 일반적 인용에 권장
 - 특정 월 버전의 재현이 필요하면 해당 릴리스의 **Version DOI**를 인용하세요
 - GitHub의 "Cite this repository" 버튼으로 BibTeX을 받을 수 있습니다
+- 라이브러리를 소개하는 워킹페이퍼: [SSRN 7339600](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7339600)
 
 ## 갱신 주기
 
