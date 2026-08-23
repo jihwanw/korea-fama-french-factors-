@@ -78,7 +78,7 @@ These match the benchmarks of published replication studies. The Korean factors 
 
 > Woo, Jihwan. *Korea Fama-French Factors (FF5 + Momentum)* [Data set]. Zenodo. https://doi.org/10.5281/zenodo.22059320
 
-Use the Concept DOI above for general citation; cite a release-specific Version DOI for exact reproducibility. BibTeX available via GitHub's "Cite this repository" button. A working paper describing the library is available on [SSRN (abstract 7339600)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7339600).
+Use the Concept DOI above for general citation; cite a release-specific Version DOI for exact reproducibility. BibTeX available via GitHub's "Cite this repository" button. A working paper describing the library is available on [SSRN (abstract 7339600)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7339600) and as a [PDF in this repository](paper/main.pdf).
 
 ## Related Repositories
 
