@@ -131,6 +131,15 @@ if __name__ == "__main__":
     # 실데이터 마지막 월에서 절단 (상폐 의사 행만 있는 꼬리 월 제거)
     real_max = build_panel(sec)["month"].max()
     fac = fac.loc["2001-07":real_max]
+
+    # 안전장치: 아직 끝나지 않은 달(실행 시점의 당월 이후)은 절대 배포하지 않음
+    # (예: 8월 22일 실행 시 부분 집계된 2026-08 행이 배포되는 사고 방지)
+    import datetime as _dt
+    _cur = pd.Period(_dt.date.today(), freq="M")
+    _dropped = fac.index[fac.index >= _cur]
+    if len(_dropped):
+        print(f"safeguard: dropping in-progress month(s) {list(map(str, _dropped))}")
+    fac = fac[fac.index < _cur]
     result = (fac[["mkt_rf", "smb", "hml", "rmw", "cma", "wml", "rf", "mkt"]] * 100).round(4)
     result.columns = ["MKT_RF", "SMB", "HML", "RMW", "CMA", "WML", "RF", "MKT"]
     result.to_csv(f"{OUT}/factors_monthly_kr_ff5.csv")
