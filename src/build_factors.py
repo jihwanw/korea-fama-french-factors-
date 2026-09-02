@@ -51,6 +51,44 @@ def pull_data():
     fund.to_parquet(f"{OUT}/raw_funda.parquet")
     return sec, fund
 
+
+def pull_funda_full():
+    """FF5용 재무제표: BE(ceq) + OP(revt,cogs,xsga,xint) + INV(at)."""
+    conn = wrds_conn()
+    print("[FF5] g_funda 확장 재무제표 (ceq,revt,cogs,xsga,xint,at)...")
+    fund = conn.raw_sql("""
+        SELECT gvkey, datadate, fyear, ceq, revt, cogs, xsga, xint, at
+        FROM comp_global_daily.g_funda
+        WHERE fic='KOR' AND ceq IS NOT NULL
+          AND indfmt='INDL' AND datafmt='HIST_STD' AND consol='C' AND popsrc='I'
+    """, date_cols=["datadate"])
+    print(f"    {len(fund):,} rows, {fund.gvkey.nunique():,} firms")
+    conn.close()
+    fund.to_parquet(f"{OUT}/raw_funda_full.parquet")
+    return fund
+
+
+def pull_delist():
+    """상장폐지 정보: g_security의 폐지 사유(dlrsni)·폐지일(dldtei)."""
+    conn = wrds_conn()
+    print("[FF5] g_security 상장폐지 (KOR)...")
+    dl = conn.raw_sql("""
+        SELECT gvkey, iid, dlrsni, dldtei
+        FROM comp_global_daily.g_security
+        WHERE excntry='KOR' AND dldtei IS NOT NULL
+    """, date_cols=["dldtei"])
+    print(f"    {len(dl):,} rows")
+    conn.close()
+    dl.to_parquet(f"{OUT}/raw_delist.parquet")
+    return dl
+
+
+def pull_ff5_raw():
+    """FF5 파이프라인 원자료 3종(raw_secd, raw_funda_full, raw_delist) 일괄 수집."""
+    pull_data()
+    pull_funda_full()
+    pull_delist()
+
 def pull_rf():
     print("[3/3] ECOS CD91 월별...")
     url = (f"https://ecos.bok.or.kr/api/StatisticSearch/{ECOS_KEY}/json/kr/1/1000/"

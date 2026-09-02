@@ -29,7 +29,7 @@ def load_gh_token():
 def main():
     load_gh_token()
     # 1. 원데이터 강제 재수집 후 FF5 파이프라인 실행
-    for f in ["raw_secd.parquet", "raw_funda.parquet"]:
+    for f in ["raw_secd.parquet", "raw_funda_full.parquet", "raw_delist.parquet"]:
         p = os.path.join(DATA, f)
         if os.path.exists(p):
             os.remove(p)

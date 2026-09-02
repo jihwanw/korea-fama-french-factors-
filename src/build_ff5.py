@@ -108,6 +108,10 @@ def compute_ff5(panel, assign, rf):
     return fac
 
 if __name__ == "__main__":
+    _raw = [f"{OUT}/raw_secd.parquet", f"{OUT}/raw_funda_full.parquet", f"{OUT}/raw_delist.parquet"]
+    if "--refresh" in sys.argv or not all(os.path.exists(p) for p in _raw):
+        from build_factors import pull_ff5_raw
+        pull_ff5_raw()
     sec = pd.read_parquet(f"{OUT}/raw_secd.parquet")
     fund = pd.read_parquet(f"{OUT}/raw_funda_full.parquet")
     dl = pd.read_parquet(f"{OUT}/raw_delist.parquet")
