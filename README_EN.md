@@ -7,7 +7,11 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22059320.svg)](https://doi.org/10.5281/zenodo.22059320)
 [![Factors](https://img.shields.io/badge/Factors-6%20(FF5%2BWML)-orange)]()
 
+[![Paper](https://img.shields.io/badge/Working%20Paper-SSRN%207339600-b31b1b)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7339600)
+
 [한국어](README.md) | **English**
+
+> 📄 **Working paper**: *Korea Fama-French Factors: An Open Monthly Library with a Verified Construction Pipeline* — describes the factor construction methodology, validation procedures, and a US-market replication check. [Read on SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7339600) · [PDF in this repository](paper/main.pdf)
 
 ---
 

@@ -8,7 +8,11 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22059320.svg)](https://doi.org/10.5281/zenodo.22059320)
 [![Months](https://img.shields.io/badge/Coverage-2001--07%20~%20now-brightgreen)]()
 
+[![Paper](https://img.shields.io/badge/Working%20Paper-SSRN%207339600-b31b1b)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7339600)
+
 **한국어** | [English](README_EN.md)
+
+> 📄 **워킹페이퍼**: *Korea Fama-French Factors: An Open Monthly Library with a Verified Construction Pipeline* — 팩터 구축 방법론, 검증 절차, 미국 시장 복제 검증을 상세히 기술합니다. [SSRN에서 보기](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7339600) · [PDF (repo 사본)](paper/main.pdf)
 
 ---
 
